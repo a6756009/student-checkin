@@ -1,7 +1,0 @@
-﻿gh : gh: To use GitHub CLI in automation, set the GH_TOKEN environment variable.
-At line:15 char:2522
-+ ... ules\@vscode\ripgrep\bin'; gh run view 36580502924 --log 2>&1 | Out-F ...
-+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (gh: To use GitH...nment variable.:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
