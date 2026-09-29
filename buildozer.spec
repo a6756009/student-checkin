@@ -11,14 +11,10 @@ source.include_exts = py,png,jpg,kv,atlas,ttc,ttf,xml
 version = 1.0
 
 # 依赖
-requirements = python3,kivy,openpyxl
+requirements = python3 ==3.11.16,kivy,openpyxl
 
-# 启动界面（简单图片）
-presplash.filename = %(source.dir)s/splash.png
+# 启动界面
 presplash.color = #2E7D32
-
-# 图标
-icon.filename = %(source.dir)s/icon.png
 
 # 全屏
 fullscreen = 0
