@@ -5,7 +5,7 @@ __pycache__/
 /bin/
 .DS_Store
 *.log
-.github/
+
 学生签到/
 _temp_clone/
 InstallationLog.txt
