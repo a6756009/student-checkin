@@ -48,22 +48,41 @@ jobs:
           fi
           cd python-for-android
           echo "[patch] Patching build.py for --no-binary..."
-          # Fix 1: Force pip to not use pre-built wheels (charset_normalizer etc.)
           sed -i "s|'pip', 'install', '--ignore-installed'|'pip', 'install', '--ignore-installed', '--no-binary', ':all:'|g" pythonforandroid/build.py
-          # Also fix recipe.py where pip might be called
           sed -i "s|'pip', 'install'|'pip', 'install', '--no-binary', ':all:'|g" pythonforandroid/recipe.py 2>/dev/null || true
           echo "[patch] Done. Verify:"
-          grep -n "no-binary" pythonforandroid/build.py | head -5 || echo "no-binary not in build.py - using env var fallback"
+          grep -c "no-binary" pythonforandroid/build.py pythonforandroid/recipe.py 2>/dev/null || echo "no sed match - env var fallback OK"
 
       - name: Build APK with Buildozer
         env:
           PIP_NO_BINARY: ':all:'
         run: |
           cd "${GITHUB_WORKSPACE}"
-          echo "y" | buildozer android debug
+          set -o pipefail
+          echo "y" | buildozer android debug 2>&1 | tee /tmp/buildozer_full.log
+          echo "BUILDOZER_EXIT_CODE=$?"
+
+      - name: Upload Buildozer Full Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-full-log
+          path: /tmp/buildozer_full.log
+
+      - name: Capture Buildozer Tail Error
+        if: always()
+        run: |
+          echo "=== BUILDOZER LOG TAIL (last 200 lines) ===" >> /tmp/build_error.txt
+          tail -200 /tmp/buildozer_full.log >> /tmp/build_error.txt 2>/dev/null || echo "No log found"
+          echo "" >> /tmp/build_error.txt
+          echo "=== GREP ERRORS ===" >> /tmp/build_error.txt
+          grep -n -i -E "(error|failed|traceback|exception|command failed|ninja:|BUILD FAILED)" /tmp/buildozer_full.log | tail -50 >> /tmp/build_error.txt 2>/dev/null || true
+          cat /tmp/build_error.txt
+          echo "Done capturing errors"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: student-checkin-apk
           path: bin/*.apk
+          continue-on-error: true
