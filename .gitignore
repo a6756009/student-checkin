@@ -1,0 +1,15 @@
+﻿.buildozer/
+__pycache__/
+*.pyc
+*.apk
+/bin/
+.DS_Store
+*.log
+.github/
+学生签到/
+_temp_clone/
+InstallationLog.txt
+build.yml
+patch_*.py
+patch_*.sh
+find_p4a.sh
