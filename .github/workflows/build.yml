@@ -24,24 +24,22 @@ jobs:
           sudo apt-get install -y python3-pip python3-dev zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev
           pip3 install buildozer cython==0.29.37
 
-      - name: Accept Android SDK licenses
+      - name: Pre-accept all Android SDK licenses
         run: |
+          yes | sudo apt-get install -y android-sdk 2>/dev/null || true
+          mkdir -p /tmp/android-licenses && cd /tmp/android-licenses
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+          unzip -q tools.zip -d .
+          export ANDROID_HOME=$HOME/android-sdk
           mkdir -p $ANDROID_HOME/cmdline-tools
-          cd /tmp
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
-          unzip -q -o cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          mv cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
-          echo "Licenses accepted"
-        env:
-          ANDROID_HOME: ${{ github.workspace }}/.android-sdk
+          echo "Licenses pre-accepted"
 
       - name: Build APK with Buildozer
         run: |
           cd "${GITHUB_WORKSPACE}"
-          export ANDROID_HOME="${GITHUB_WORKSPACE}/.android-sdk"
-          export ANDROIDSDK="${GITHUB_WORKSPACE}/.android-sdk"
-          buildozer android debug
+          echo "y" | buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
