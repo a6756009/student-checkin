@@ -19,14 +19,17 @@ jobs:
 
       - name: Install Python and dependencies
         run: |
+          sudo rm -f /usr/lib/python3.12/EXTERNALLY-MANAGED
           sudo apt-get update
           sudo apt-get install -y python3-pip python3-dev zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-          pip3 install --upgrade pip
           pip3 install buildozer cython==0.29.37
 
       - name: Build APK with Buildozer
+        env:
+          ANDROIDSDK: ${{ github.workspace }}/.buildozer/android/platform/android/platform
         run: |
-          buildozer android debug
+          cd "${GITHUB_WORKSPACE}"
+          buildozer android debug 2>&1 | tail -50
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
